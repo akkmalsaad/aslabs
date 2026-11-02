@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AS Labs Assets</title>
+<link rel="icon" href="favicon/favicon.ico" sizes="any">
+<link rel="icon" href="favicon/favicon.svg" type="image/svg+xml">
+<style>
+  :root { --ink:#0B0D12; --paper:#FFFFFF; --accent:#FF4A1C; --line:#1E222C; --muted:#8A90A0; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--ink); color:#E8EAF0; font:14px/1.5 -apple-system, Helvetica, Arial, sans-serif; }
+  nav { display:flex; align-items:center; justify-content:space-between; padding:18px 32px; border-bottom:1px solid var(--line); }
+  nav img { height:30px; display:block; }
+  nav span { font:12px Menlo, monospace; color:var(--muted); letter-spacing:.12em; }
+  .wrap { max-width:1100px; margin:0 auto; padding:40px 24px 64px; }
+  h2 { font:12px Menlo, monospace; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:40px 0 14px; }
+  .row { display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; }
+  .row3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  .tile { border:1px solid var(--line); border-radius:12px; padding:40px; display:flex; align-items:center; justify-content:center; min-height:230px; }
+  .tile.light { background:var(--paper); }
+  .tile img { max-width:100%; max-height:150px; }
+  .cap { font:11px Menlo, monospace; color:var(--muted); margin-top:8px; }
+  .icons { display:flex; gap:28px; align-items:flex-end; }
+  .icons img { display:block; }
+  .og { width:100%; border-radius:12px; border:1px solid var(--line); display:block; }
+</style>
+</head>
+<body>
+<nav><img src="logo/as-labs-horizontal-white-accent.svg" alt="AS Labs"><span>NAVBAR · 30px tall</span></nav>
+<div class="wrap">
+  <h2>Stacked</h2>
+  <div class="row">
+    <div><div class="tile"><img src="logo/as-labs-stacked-white-accent.svg" alt=""></div><div class="cap">logo/as-labs-stacked-white-accent.svg</div></div>
+    <div><div class="tile light"><img src="logo/as-labs-stacked-black.svg" alt=""></div><div class="cap">logo/as-labs-stacked-black.svg</div></div>
+  </div>
+  <h2>Horizontal</h2>
+  <div class="row">
+    <div><div class="tile"><img src="logo/as-labs-horizontal-white.svg" alt="" style="max-height:90px"></div><div class="cap">logo/as-labs-horizontal-white.svg</div></div>
+    <div><div class="tile light"><img src="logo/as-labs-horizontal-black-accent.svg" alt="" style="max-height:90px"></div><div class="cap">logo/as-labs-horizontal-black-accent.svg</div></div>
+  </div>
+  <h2>Mark &amp; icons</h2>
+  <div class="row3">
+    <div><div class="tile"><img src="logo/as-labs-mark-white-accent.svg" alt=""></div><div class="cap">logo/as-labs-mark-white-accent.svg</div></div>
+    <div><div class="tile light"><img src="logo/as-labs-mark-black.svg" alt=""></div><div class="cap">logo/as-labs-mark-black.svg</div></div>
+    <div><div class="tile"><div class="icons">
+      <img src="favicon/icon-192.png" width="96" alt="">
+      <img src="favicon/apple-touch-icon.png" width="60" alt="">
+      <img src="favicon/favicon.svg" width="32" alt="">
+      <img src="favicon/favicon.svg" width="16" alt="">
+    </div></div><div class="cap">favicon/ · 96 · 60 · 32 · 16 px</div></div>
+  </div>
+  <h2>Social share (og-image 1200×630)</h2>
+  <img class="og" src="social/og-image.png" alt="">
+</div>
+</body>
+</html>

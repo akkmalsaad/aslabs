@@ -1,0 +1,317 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens
+   Brand palette (assets/README.md): Deep Space #0B0D12 · Paper #FFFFFF ·
+   Ignition #FF4A1C (accents only). Canvas/graphite are neutral tints of those.
+   ------------------------------------------------------------------ */
+
+@theme {
+  --color-ink: #0b0d12;
+  --color-paper: #ffffff;
+  --color-ignition: #ff4a1c;
+  --color-canvas: #f3f3ef;
+  --color-graphite: #14171e;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-bevan), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  /* --font-bevan already carries next/font's metric-matched fallback. */
+  --font-heading: var(--font-bevan);
+
+  /* Fluid type scale (mobile → desktop) */
+  --text-headline: clamp(2.25rem, 1.2rem + 3.4vw, 4.75rem);
+  --text-headline--line-height: 1;
+  --text-headline--letter-spacing: -0.04em;
+
+  --text-title: clamp(1.75rem, 1.2rem + 1.8vw, 3rem);
+  --text-title--line-height: 1.04;
+  --text-title--letter-spacing: -0.035em;
+
+  --text-lede: clamp(1.0625rem, 0.95rem + 0.45vw, 1.3125rem);
+  --text-lede--line-height: 1.5;
+
+  /* One motion language (mirrored in src/lib/motion.ts) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --shadow-device:
+    0 1px 2px rgb(11 13 18 / 0.06), 0 24px 48px -24px rgb(11 13 18 / 0.32),
+    0 60px 120px -60px rgb(11 13 18 / 0.28);
+  --shadow-float: 0 1px 1px rgb(11 13 18 / 0.08), 0 16px 40px -16px rgb(11 13 18 / 0.45);
+}
+
+/* Section-aware colours: `theme-light` / `theme-dark` set these, utilities read them. */
+@theme inline {
+  --color-fg: var(--fg);
+  --color-bg: var(--bg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+}
+
+:root {
+  color-scheme: light;
+
+  --bg: var(--color-canvas);
+  --fg: var(--color-ink);
+  --muted: rgb(11 13 18 / 0.6);
+  --subtle: rgb(11 13 18 / 0.4);
+  --line: rgb(11 13 18 / 0.1);
+
+  /* Motion durations */
+  --dur-micro: 0.3s;
+  --dur-ui: 0.6s;
+  --dur-cinematic: 0.9s;
+
+  /* Layout */
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  --container-max: 90rem;
+  --space-section: clamp(6rem, 3.5rem + 10vw, 12rem);
+  --space-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  --card-radius: clamp(1.25rem, 0.8rem + 1.6vw, 2.25rem);
+  --slab-radius: clamp(1.5rem, 0.75rem + 3vw, 3.5rem);
+
+  /* Fixed chrome: edges respect device safe areas */
+  --edge: clamp(1rem, 0.6rem + 1.6vw, 2rem);
+  --edge-top: calc(var(--edge) + env(safe-area-inset-top, 0px));
+  --edge-left: calc(var(--edge) + env(safe-area-inset-left, 0px));
+  --edge-right: calc(var(--edge) + env(safe-area-inset-right, 0px));
+  --edge-bottom: calc(clamp(1rem, 0.75rem + 1vw, 1.5rem) + env(safe-area-inset-bottom, 0px));
+  --logo-width: clamp(4.25rem, 3.4rem + 2.4vw, 5.75rem);
+  /* Space kept clear under the fixed logo, and above the bottom dock. */
+  --nav-zone: calc(var(--edge-top) + var(--logo-width) * 0.56 + clamp(1rem, 0.75rem + 1vw, 1.75rem));
+  --dock-zone: calc(var(--edge-bottom) + 4.5rem);
+}
+
+@utility theme-light {
+  --bg: var(--color-canvas);
+  --fg: var(--color-ink);
+  --muted: rgb(11 13 18 / 0.6);
+  --subtle: rgb(11 13 18 / 0.4);
+  --line: rgb(11 13 18 / 0.1);
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+@utility theme-dark {
+  --bg: var(--color-ink);
+  --fg: var(--color-paper);
+  --muted: rgb(255 255 255 / 0.62);
+  --subtle: rgb(255 255 255 / 0.4);
+  --line: rgb(255 255 255 / 0.1);
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* Small labels marked up as headings keep their own face via the `eyebrow` utility. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    /* Bevan has one weight (400): never fake a bold. */
+    font-synthesis-weight: none;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-ignition);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ignition);
+    outline-offset: 3px;
+  }
+
+  /* Sections receive programmatic focus after menu navigation. */
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Utilities
+   ------------------------------------------------------------------ */
+
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------
+   First-load intro
+   CSS (not JS) so it starts at first paint, before hydration.
+   Timing comes from `intro` in src/lib/motion.ts via --intro-delay.
+   ------------------------------------------------------------------ */
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--intro-y, 1rem), 0) scale(var(--intro-scale, 1));
+    filter: blur(var(--intro-blur, 4px));
+  }
+}
+
+/* Hero headline: each character rises onto the baseline while fading in. */
+@keyframes intro-char {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.4em, 0);
+  }
+}
+
+@keyframes intro-visual {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--intro-y, 3rem), 0) scale(0.94) rotate(var(--intro-rotate, 0deg));
+    filter: blur(12px);
+  }
+}
+
+.intro-rise {
+  animation: intro-rise var(--intro-duration, var(--dur-ui)) var(--ease-out) var(--intro-delay, 0s) both;
+}
+
+.intro-char {
+  display: inline-block;
+  animation: intro-char 0.25s var(--ease-out) var(--intro-delay, 0s) both;
+}
+
+.intro-visual {
+  animation: intro-visual 0.95s var(--ease-out) var(--intro-delay, 0s) both;
+}
+
+@media (max-width: 47.99rem) {
+  .intro-visual {
+    --intro-y: 1.5rem;
+  }
+}
+
+/* Scroll cue: a short segment travelling down a hairline. */
+@keyframes cue-travel {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 300%, 0);
+  }
+}
+
+.cue-travel {
+  animation: cue-travel 2.4s var(--ease-in-out) infinite;
+}
+
+/* Hero tool strip: six identical copies; travelling half the track lands on a frame
+   identical to the first, so the loop restarts invisibly. Duration sets the speed
+   (≈32px/s on desktop for three 612px copies). */
+@keyframes tool-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.tool-strip {
+  --tool-fade: clamp(2rem, 1rem + 4vw, 5rem);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--tool-fade),
+    #000 calc(100% - var(--tool-fade)),
+    transparent
+  );
+}
+
+.tool-track {
+  animation: tool-marquee 57s linear infinite;
+}
+
+@media (hover: hover) {
+  .tool-strip:hover .tool-track {
+    animation-play-state: paused;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Reduced motion: content is immediately present, nothing travels.
+   (Motion-driven animation is handled by MotionProvider + useReducedMotion.)
+   ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .intro-rise,
+  .intro-char,
+  .intro-visual,
+  .cue-travel,
+  .tool-track {
+    animation: none;
+  }
+
+  /* Static row: scrolls by hand, with only a trailing fade as the overflow hint. */
+  .tool-strip {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+    mask-image: linear-gradient(to left, transparent, #000 var(--tool-fade));
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
