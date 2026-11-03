@@ -1,13 +1,12 @@
 "use client";
 
-import { Children, useRef, useState, type ReactNode } from "react";
+import { Children, createRef, useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import {
   m,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useTransform,
-  type MotionValue,
 } from "motion/react";
 import { ProjectProgress } from "./ProjectProgress";
 
@@ -23,35 +22,59 @@ type ProjectStackProps = {
 /**
  * Sticky stacked showcase.
  *
- * Every <li> is a full-viewport `position: sticky` slot, so each card pins at
- * the top while the next one scrolls up over it. Overall progress p (0 → 1)
- * spans the whole stack; card i is being covered while p is in
- * [i / (n-1), (i+1) / (n-1)], and recedes over exactly that range.
+ * Every <li> is an at-least-full-viewport `position: sticky` slot, so each card
+ * pins while the next one scrolls up over it. A card taller than the screen
+ * (long content on short viewports) scrolls until its bottom is in view and
+ * pins there instead (`--slot-h` feeds its sticky `top`). Card i recedes while
+ * slot i+1 travels from the bottom of the viewport to the top, whatever the
+ * slot heights.
  */
 export function ProjectStack({ label, itemLabel, children }: ProjectStackProps) {
   const ref = useRef<HTMLOListElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
   const cards = Children.toArray(children);
   const total = cards.length;
+  // One ref per slot, made once (the card list is static).
+  const [slots] = useState(() => cards.map(() => createRef<HTMLLIElement>()));
 
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   // Separate, looser range for showing the progress indicator.
   const { scrollYProgress: presence } = useScroll({ target: ref, offset: ["start 0.6", "end 0.4"] });
 
   const [current, setCurrent] = useState(0);
   const [inView, setInView] = useState(false);
-  useMotionValueEvent(scrollYProgress, "change", (p) =>
-    setCurrent(Math.min(total - 1, Math.round(p * (total - 1)))),
+  // A card counts as passed once the next one has covered half of it.
+  const onCover = useCallback(
+    (index: number, passed: boolean) => setCurrent((c) => (passed ? Math.max(c, index + 1) : Math.min(c, index))),
+    [],
   );
   useMotionValueEvent(presence, "change", (p) => setInView(p > 0 && p < 1));
+
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        (entry.target as HTMLElement).style.setProperty("--slot-h", `${entry.borderBoxSize[0].blockSize}px`);
+      }
+    });
+    for (const slot of slots) if (slot.current) observer.observe(slot.current);
+    return () => observer.disconnect();
+  }, [slots]);
 
   return (
     <>
       <ol ref={ref} aria-label={label}>
         {cards.map((card, i) => (
-          <li key={i} className="sticky top-0 h-svh">
-            <div className="container-page h-full pt-(--nav-zone) pb-(--dock-zone)">
-              <StackedCard index={i} total={total} progress={scrollYProgress} reduceMotion={reduceMotion}>
+          <li
+            key={i}
+            ref={slots[i]}
+            className="sticky top-[min(0px,calc(100svh_-_var(--slot-h,100svh)))] flex min-h-svh flex-col"
+          >
+            <div className="container-page flex flex-1 flex-col pt-(--nav-zone) pb-(--dock-zone)">
+              <StackedCard
+                index={i}
+                coveredBy={slots[i + 1]}
+                reduceMotion={reduceMotion}
+                onCover={onCover}
+              >
                 {card}
               </StackedCard>
             </div>
@@ -65,25 +88,32 @@ export function ProjectStack({ label, itemLabel, children }: ProjectStackProps) 
 
 type StackedCardProps = {
   index: number;
-  total: number;
-  progress: MotionValue<number>;
+  /** The next slot; absent for the last card, which is never covered. */
+  coveredBy?: RefObject<HTMLLIElement | null>;
   reduceMotion: boolean;
+  onCover: (index: number, passed: boolean) => void;
   children: ReactNode;
 };
 
-function StackedCard({ index, total, progress, reduceMotion, children }: StackedCardProps) {
+function StackedCard({ index, coveredBy, reduceMotion, onCover, children }: StackedCardProps) {
   // The last card is never covered, so it keeps its resting values throughout.
-  // (Ranges must stay within 0–1: Motion may hand these to the browser's ScrollTimeline.)
-  const recedes = index < total - 1;
-  const range = recedes ? [index / (total - 1), (index + 1) / (total - 1)] : [0, 1];
+  const recedes = coveredBy !== undefined;
   const move = recedes && !reduceMotion;
 
-  const scale = useTransform(progress, range, [1, move ? 0.955 : 1]);
-  const y = useTransform(progress, range, [0, move ? -28 : 0]);
-  const shade = useTransform(progress, range, [0, recedes ? 0.5 : 0]);
+  // 0 as the next slot's top enters at the bottom of the viewport, 1 as it reaches the top.
+  const { scrollYProgress: cover } = useScroll({ target: coveredBy, offset: ["start end", "start start"] });
+  useMotionValueEvent(cover, "change", (p) => {
+    if (recedes) onCover(index, p >= 0.5);
+  });
+
+  const scale = useTransform(cover, [0, 1], [1, move ? 0.955 : 1]);
+  const y = useTransform(cover, [0, 1], [0, move ? -28 : 0]);
+  // A function keeps opacity on the JS path with scale and y: Motion would otherwise hand it to
+  // a browser ViewTimeline, which mis-measures the sticky slot it tracks.
+  const shade = useTransform(cover, (p) => (recedes ? p * 0.5 : 0));
 
   return (
-    <m.div style={{ scale, y }} className="relative h-full origin-top">
+    <m.div style={{ scale, y }} className="relative flex flex-1 origin-top flex-col">
       {children}
       {/* Darkens the receding card (opacity only: cheaper than a brightness filter). */}
       <m.div

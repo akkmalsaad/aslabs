@@ -5,8 +5,10 @@ export const site = {
   name: "Akkmal Saad Labs",
   shortName: "AS Labs",
   description: "Apps, web systems and tools built from idea to launch.",
-  // Set NEXT_PUBLIC_SITE_URL in production so OG/canonical URLs are absolute.
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  // Canonical origin for metadata, sitemap and structured data. Production sets
+  // NEXT_PUBLIC_SITE_URL=https://aslabs.my; the fallback is the same production origin, never
+  // localhost or a preview domain. No trailing slash.
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://aslabs.my").replace(/\/+$/, ""),
 } as const;
 
 // Hex values for places CSS variables can't reach (SVG fill attributes, meta tags).
@@ -25,7 +27,7 @@ export const contact = {
     href: "https://wa.me/60172380450",
   },
   address: [
-    "A-15-3A HON City Garden Commercial Centre,",
+    "HON City Garden Commercial Centre,",
     "Jalan Nirwana, Taman Nirwana,",
     "68000 Ampang, Selangor.",
   ],

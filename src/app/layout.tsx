@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { NavigationProvider } from "@/components/layout/NavigationProvider";
 import { NavigationShell } from "@/components/layout/NavigationShell";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { indexable, seo } from "@/lib/seo";
 import { brandColors, site } from "@/lib/site";
 import "./globals.css";
 
@@ -31,10 +32,16 @@ const bevan = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: site.name,
-    template: `%s · ${site.name}`,
+    default: seo.title,
+    template: `%s | ${site.shortName}`,
   },
-  description: site.description,
+  description: seo.description,
+  applicationName: site.shortName,
+  authors: [{ name: "Akkmal Saad", url: site.url }],
+  creator: "Akkmal Saad",
+  alternates: { canonical: "/" },
+  // Vercel preview deployments stay out of search results (see lib/seo.ts).
+  robots: indexable ? { index: true, follow: true } : { index: false, follow: false },
   icons: {
     icon: [
       { url: "/brand/favicon/favicon.ico", sizes: "any" },
@@ -45,13 +52,18 @@ export const metadata: Metadata = {
   manifest: "/brand/favicon/site.webmanifest",
   openGraph: {
     type: "website",
-    siteName: site.name,
-    title: site.name,
-    description: site.description,
-    images: [{ url: "/brand/social/og-image.png", width: 1200, height: 630, alt: site.name }],
+    url: "/",
+    siteName: site.shortName,
+    locale: "en_MY",
+    title: seo.title,
+    description: seo.description,
+    images: [seo.ogImage],
   },
   twitter: {
     card: "summary_large_image",
+    title: seo.title,
+    description: seo.description,
+    images: [seo.ogImage],
   },
 };
 

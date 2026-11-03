@@ -11,7 +11,21 @@ npm run build   # production build
 npm run lint
 ```
 
-Set `NEXT_PUBLIC_SITE_URL` (e.g. `https://example.com`) in production so Open Graph URLs are absolute.
+## Deployment & SEO
+
+Production runs at **https://aslabs.my** on Vercel.
+
+- **Required Vercel environment variable (Production):** `NEXT_PUBLIC_SITE_URL=https://aslabs.my`.
+  It is the origin for canonical URLs, Open Graph/X tags, `sitemap.xml`, `robots.txt` and the
+  JSON-LD. Without it the code falls back to `https://aslabs.my` (never localhost). Do not set it
+  to a `*.vercel.app` or preview URL. It is not a secret; no `.env` file is needed or committed.
+- **Preview deployments are not indexed.** Builds with `VERCEL_ENV=preview` (or `development`)
+  emit `noindex, nofollow`. Their `robots.txt` deliberately does not `Disallow` (and lists no
+  sitemap) so crawlers can fetch pages and read the noindex; Vercel also sends
+  `X-Robots-Tag: noindex` on preview URLs. Any Vercel Deployment Protection on previews is a
+  project setting and is unaffected. Production stays indexable.
+- SEO lives in `src/lib/seo.ts` (title, description, JSON-LD), `src/app/layout.tsx` (metadata),
+  `src/app/sitemap.ts` and `src/app/robots.ts`. Keep the JSON-LD in step with the visible copy.
 
 ## Structure
 

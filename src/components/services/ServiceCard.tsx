@@ -33,9 +33,11 @@ export function ServiceCard({ service, index }: ServiceCardProps) {
   return (
     <article
       aria-labelledby={headingId}
-      className="grid h-full grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-(--card-radius) border border-white/[0.08] bg-graphite lg:grid-cols-12 lg:grid-rows-1"
+      className="grid flex-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-(--card-radius) border border-white/[0.08] bg-graphite lg:grid-cols-12 lg:grid-rows-1"
     >
-      <div className="flex flex-col gap-5 p-5 sm:gap-6 sm:p-8 lg:col-span-5 lg:justify-between lg:p-12 xl:p-14">
+      <div
+        className={`flex flex-col gap-5 p-5 sm:gap-6 sm:p-8 lg:col-span-5 lg:gap-10 lg:p-12 xl:p-14 ${dense ? "[@media(min-width:1024px)_and_(max-height:800px)]:gap-6" : ""}`}
+      >
         <div className="eyebrow flex items-center justify-between gap-4">
           <span>{pad(index + 1)}</span>
           <span className="lg:hidden">{service.tag}</span>
@@ -50,14 +52,24 @@ export function ServiceCard({ service, index }: ServiceCardProps) {
           <p className="max-w-md text-muted sm:text-lg sm:leading-relaxed">{service.summary}</p>
 
           <dl
-            className={`mt-2 hidden gap-x-6 gap-y-4 border-t border-line pt-6 text-sm lg:grid grid-cols-1 ${
+            className={`mt-2 grid grid-cols-1 gap-x-6 gap-y-4 border-t border-line pt-6 text-sm sm:text-base ${
               dense ? "[@media(min-width:1024px)_and_(max-height:800px)]:mt-0 [@media(min-width:1024px)_and_(max-height:800px)]:pt-4" : ""
             }`}
           >
             {details.map((d) => (
               <div key={d.term}>
-                <dt className="eyebrow mb-1.5">{d.term}</dt>
-                <dd>{d.value}</dd>
+                <dt className="eyebrow mb-1.5 font-sans">{d.term}</dt>
+                <dd>
+                  {/* Two columns where the text panel is wide (tablet, large desktop); one beside the image. */}
+                  <ul className="gap-x-6 sm:columns-2 lg:columns-1 xl:columns-2">
+                    {d.value.map((item) => (
+                      <li key={item} className="flex break-inside-avoid gap-2.5 py-[0.1875rem]">
+                        <span aria-hidden className="mt-[calc(0.5lh_-_2px)] size-1 shrink-0 rounded-full bg-ignition" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
               </div>
             ))}
           </dl>
@@ -73,7 +85,9 @@ export function ServiceCard({ service, index }: ServiceCardProps) {
         </div>
       </div>
 
-      <div className="relative border-t border-line bg-white/[0.025] lg:col-span-7 lg:border-t-0 lg:border-l">
+      {/* Below lg the panel takes the height the text leaves; the floor keeps the image visible
+          when the inclusions list makes the card taller than the screen. */}
+      <div className="relative min-h-[66vw] border-t border-line bg-white/[0.025] sm:min-h-80 lg:col-span-7 lg:min-h-0 lg:border-t-0 lg:border-l">
         <p
           className={`pointer-events-none absolute top-4 left-5 z-10 font-mono text-[0.625rem] leading-none tracking-[0.14em] uppercase sm:top-5 sm:left-6 lg:top-7 lg:left-8 ${
             fullBleed ? "text-ink/45" : storePhoto ? "text-ink/60" : "text-subtle"

@@ -49,7 +49,7 @@ export function Footer() {
           <div className="lg:col-span-3">
             <p className="eyebrow mb-3">Business</p>
             <p>{site.name}</p>
-            <p>SSM Registration No. {contact.registration}</p>
+            <p>{contact.registration}</p>
           </div>
         </div>
 

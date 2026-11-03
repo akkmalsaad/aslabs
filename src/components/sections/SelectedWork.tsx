@@ -3,7 +3,7 @@ import { ServiceCard } from "@/components/services/ServiceCard";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { SectionIntro } from "@/components/ui/SectionIntro";
-import { showcaseServices } from "@/lib/showcase";
+import { inclusionsNote, servicesIntro, showcaseServices } from "@/lib/showcase";
 
 // Dark slab that rises after the hero; holds the sticky services stack.
 export function SelectedWork() {
@@ -22,6 +22,7 @@ export function SelectedWork() {
           display
           centerHeading
           eyebrow="Services"
+          lede={servicesIntro}
           headingId="work-heading"
           lines={["Digital services built", "around your business."]}
         />
@@ -32,6 +33,10 @@ export function SelectedWork() {
           <ServiceCard key={service.slug} service={service} index={i} />
         ))}
       </ProjectStack>
+
+      <Container className="pt-(--space-block)">
+        <p className="mx-auto max-w-2xl text-center text-sm text-pretty text-muted">{inclusionsNote}</p>
+      </Container>
 
       <div aria-hidden className="h-(--space-block)" />
     </Section>
